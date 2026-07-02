@@ -1,0 +1,4 @@
+# Cloudflare Pages redirects
+# Fast-follow: once the calculator is migrated/proxied to /freedom-number,
+# replace this external redirect with the local route (or a Worker proxy).
+/freedom-number   https://freedom.fulfillionaire.com/?source=jp-newman-calculator   302
