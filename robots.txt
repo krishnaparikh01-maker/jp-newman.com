@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://jpnewman.com/sitemap.xml
+Sitemap: https://jp-newman.com/sitemap.xml

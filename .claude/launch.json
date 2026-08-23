@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "static",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["/private/tmp/claude-501/-Users-krishna-Desktop-JP-jpnewman-com/e55e9782-d889-443a-9898-72bb8dcdf472/scratchpad/serve.py"],
+      "port": 4321
+    }
+  ]
+}

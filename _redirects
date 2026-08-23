@@ -1,4 +1,44 @@
-# Cloudflare Pages redirects
-# Fast-follow: once the calculator is migrated/proxied to /freedom-number,
-# replace this external redirect with the local route (or a Worker proxy).
+# ============================================================================
+# Redirects for jp-newman.com
+#
+# The old WordPress site is being retired entirely, but its URLs may still be
+# shared, bookmarked or sitting in Google's index. These rules mean an old link
+# lands somewhere sensible instead of on an error page.
+#
+# 301 = "moved permanently", which tells Google to carry any ranking across.
+# ============================================================================
+
+# --- The 20 episode posts and the podcast index -> the podcast section -------
+# Slightly better than dumping them at the top of the homepage: someone who
+# searched for an episode arrives at the episodes.
+/podcast-episodes/                                                    /#podcast  301
+/2023-economic-predictions-with-jp-newman-and-ryan-daniel-moran/      /#podcast  301
+/how-miki-agrawal-uses-disruptive-innovation-to-change-the-world/     /#podcast  301
+/blending-freedom-and-community/                                      /#podcast  301
+/finding-your-why-and-living-your-purpose-jps-story/                  /#podcast  301
+/from-wall-street-to-wellness/                                        /#podcast  301
+/leaning-into-discomfort-to-find-your-greatest-success/               /#podcast  301
+/the-wealth-pyramid/                                                  /#podcast  301
+/how-to-create-generational-wealth-with-adrian-lufschanowski/         /#podcast  301
+/how-america-can-win/                                                 /#podcast  301
+/economic-predictions-for-the-next-18-months/                         /#podcast  301
+/keys-to-a-successful-startup/                                        /#podcast  301
+/cultivating-creativity-and-finding-your-purpose-in-entrepreneurship/ /#podcast  301
+/how-crypto-will-change-the-global-financial-system/                  /#podcast  301
+/the-real-estate-market-in-2023/                                      /#podcast  301
+/investing-in-relationships/                                          /#podcast  301
+/building-a-100m-wealth-plan/                                         /#podcast  301
+/conscious-capitalism-with-john-mackey/                               /#podcast  301
+/whats-happening-in-real-estate-and-investing/                        /#podcast  301
+/mastering-the-art-of-manifesting-true-wealth/                        /#podcast  301
+/from-wall-street-burnout-to-25m-arr/                                 /#podcast  301
+
+# --- Fast-follow: local Freedom Number route --------------------------------
+# TODO: replace with the confirmed calculator URL, or a local page once migrated.
 /freedom-number   https://freedom.fulfillionaire.com/?source=jp-newman-calculator   302
+
+# --- Everything else from the old site -> homepage ---------------------------
+# Covers WordPress leftovers (/wp-admin, /feed, /xmlrpc.php, /author/...) and
+# any URL not listed above. The new site is one page, so there is nowhere else
+# for an unknown path to go. MUST stay last: it matches everything.
+/*   /   301

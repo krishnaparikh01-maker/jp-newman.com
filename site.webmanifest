@@ -1,11 +1,11 @@
 {
   "name": "JP Newman",
   "short_name": "JP Newman",
-  "description": "Wealth, Freedom and a Life Worth Funding.",
+  "description": "Build a life worth funding. Investor, author and founder of Fulfillionaire.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0F2E1F",
-  "theme_color": "#0F2E1F",
+  "background_color": "#0B0F0E",
+  "theme_color": "#0B0F0E",
   "icons": [
     { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" },
     { "src": "/assets/img/icon-192.png", "sizes": "192x192", "type": "image/png" },

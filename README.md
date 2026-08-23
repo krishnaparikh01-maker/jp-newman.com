@@ -1,206 +1,312 @@
 # JP-Newman.com
 
-One page. One central question. One continuous story.
+A personal brand hub. One page, nine bands, one question underneath all of them.
 
-A single narrative landing page: a question is introduced, JP shares why he began
-asking it, Fulfillionaire presents a new way to think about wealth, the Freedom
-Number Calculator gives the visitor a place to begin, and the podcast and
-newsletter let them continue the conversation.
+The architecture is modelled on the best-in-class personal-brand site
+(diamandis.com): a sticky nav over a full-bleed portrait hero, then alternating
+full-width bands — belief, work, a featured framework, podcast, newsletter,
+speaking, impact, about — closing on a quote and a dark footer.
 
-**Primary conversion:** Calculate Your Freedom Number.
-**Secondary conversion:** the Notes from the Money Mystic newsletter.
+The *visual language* is deliberately not a copy. See **Design system** below.
+
+**Primary conversion:** Find your Freedom Number.
+**Secondary conversion:** JP's Fulfillionaire Newsletter.
+**Featured property:** Fulfillionaire, given its own colour band and framed
+feature box — the equivalent of the Abundance Summit box on diamandis.com.
 
 ---
 
 ## Stack
 
-Static HTML, CSS, and vanilla JavaScript. No build step, no framework, no runtime
-dependencies. Chosen for performance (near-zero JS), longevity, and a
-frictionless deploy to Cloudflare Pages. The page is organized internally as
-discrete, reusable pieces (metadata/SEO, portrait, transition statements,
-primary CTA, newsletter form, podcast links, footer, numeral motif, analytics)
-even though it renders as one continuous document.
+Static HTML, CSS and vanilla JavaScript. No build step, no framework, no runtime
+dependencies. Deploys to Cloudflare Pages as-is.
 
 ```
 .
-├── index.html            # the whole narrative (Beats 1–5 + footer)
+├── index.html             # the whole page
 ├── assets/
-│   ├── css/styles.css     # design system + continuous-background journey
-│   ├── js/main.js         # reveals, numeral motif, form, analytics events
-│   ├── fonts/             # self-hosted Cormorant Garamond + Raleway (woff2, latin)
+│   ├── css/styles.css     # design system + all 22 sections, in order
+│   ├── js/main.js         # nav, drawer, scroll spy, reveals, form, analytics
 │   └── img/               # portrait, OG image, app icons (PLACEHOLDERS — replace)
 ├── favicon.svg / favicon.ico
 ├── site.webmanifest
 ├── robots.txt / sitemap.xml
 ├── _headers               # Cloudflare Pages: caching + security headers
-└── _redirects             # Cloudflare Pages: /freedom-number (fast-follow)
+└── _redirects             # Cloudflare Pages: /freedom-number
 ```
 
 ---
 
 ## Local preview
 
-No tooling required:
-
 ```bash
-cd jpnewman.com
 python3 -m http.server 4321
-# open http://localhost:4321
 ```
 
-(Absolute `/assets/...` paths mean it must be served from the project root, not
-opened as a `file://` URL.)
-
----
-
-## Deploy — Cloudflare Pages
-
-1. Push this repository to its own Git remote (kept separate from
-   `Official-Fulfillionaire-Website` — independent deploys, env vars, analytics,
-   and domain settings).
-2. In Cloudflare Pages, create a project from the repo.
-3. Build settings: **Framework preset = None**, **Build command = (empty)**,
-   **Build output directory = `/`** (the repo root is the site).
-4. `_headers` and `_redirects` are picked up automatically.
-5. DNS: recommended to move to Cloudflare at launch, once existing email
-   authentication (SPF/DKIM/DMARC), redirects, subdomains, and third-party
-   integrations are documented and tested. See Open Items.
+Then open <http://localhost:4321>. Absolute `/assets/...` paths mean it must be
+served from the project root, not opened as a `file://` URL.
 
 ---
 
 ## Design system
 
-| Token        | Value      | Use                                    |
-|--------------|------------|----------------------------------------|
-| Forest green | `#0F2E1F`  | primary background, text on cream      |
-| Warmer green | `#17402B`  | Beats 2–3 background                    |
-| Gold         | `#B8923D`  | primary CTA, footer link, scroll cue, hairlines |
-| Cream        | `#F5EFE0`  | Beat 5 + footer background, text on green |
+The reference site is cold tech: pure white, electric blue, **condensed** caps.
+This site is about wealth, meaning and enough — so every axis is inverted while
+the underlying structure is kept.
 
-Accessible variants used to meet WCAG AA in context:
-`--gold-bright #D4AC55` (gold text on green), `#7E5F1E` (gold text on cream).
+| Axis | Reference | This site |
+|---|---|---|
+| Display type | Condensed gothic | **Expanded** heavy grotesque (`wdth 112`) |
+| Accent | Electric blue | **Brass** `#C8922F` |
+| Light ground | Pure white | Warm bone `#F2EEE6` |
+| Corners | Rounded cards | Crisp 4px + hairline keylines |
+| Texture | Flat | Film grain on dark bands |
 
-**Typography:** Cormorant Garamond (display / headlines / transition lines),
-Raleway (body / UI / forms). Both self-hosted as latin-subset variable woff2 and
-preloaded. Both are SIL Open Font License, so self-hosting is permitted.
+### Tokens
 
-**Continuous background:** the green half of the journey (forest → warmer →
-forest for the climax) is a single gradient painted on `<body>`. The resolve to
-cream is owned by Beat 5 itself: the forest→cream fade happens inside that
-section's top padding (empty space), so forest-colored text always lands on a
-solid cream backdrop regardless of how the beats above reflow. This avoids the
-document-height-percentage fragility that would otherwise drop dark text onto a
-mid-green background at some viewport widths.
+| Token | Value | Use |
+|---|---|---|
+| `--ink` | `#0B0F0E` | dark bands, footer, form |
+| `--moss` | `#16302A` | the Fulfillionaire band only |
+| `--bone` | `#F2EEE6` | hero, secondary light bands |
+| `--paper` | `#FAF8F3` | primary light bands |
+| `--brass` | `#C8922F` | buttons, rules, accents |
+| `--brass-band` | `#D8A63C` | the gold quote band |
 
-**Numeral motif:** one recurring abstract `$` mark, fixed behind the content,
-`aria-hidden`. It sharpens from blurred (hero) to fully resolved at the
-calculator climax via a scroll-driven `--motif-focus` custom property, then
-flips ink to forest over the cream beat. Simplified to a static, faint mark on
-small screens and under `prefers-reduced-motion`.
+Accessible variants, because brass at full strength fails contrast in one
+direction or the other: `--brass-bright #E2B75F` for brass text **on dark**, and
+`--brass-deep #7A5A16` for brass text **on light**. Use the token that matches
+the ground; never `--brass` for body-size text.
 
-**Motion:** restrained fade-and-rise reveals via IntersectionObserver. Fully
-disabled under `prefers-reduced-motion`; content is always visible without JS
-(`.no-js` fallback + a global error failsafe).
+### Type
+
+- **Archivo** (variable, `wdth` axis) — display. Expanded and heavy is the whole
+  signature; if you swap this face, keep a width axis.
+- **Inter** — body and UI.
+- **Instrument Serif italic** — used sparingly, for emphasis lines and the quote.
+  This is the site's voice. Do not let it spread into body copy.
+
+All three load from Google Fonts. To drop the third-party request, self-host the
+latin-subset woff2 files and replace the `<link>` in `<head>`.
+
+### Signature devices
+
+- **Numbered sections** (`01 / WHAT I BELIEVE`) — the wayfinding spine.
+- **Hairline grids** — cards butt together, separated by 1px of grid background,
+  rather than floating as separate rounded cards.
+- **Offset brass keylines** framing both portraits.
+- **Corner ticks** on the Fulfillionaire box.
+- **One gold band** as the climax, immediately before the footer. Only one.
+
+### Photography
+
+All site photography is greyscaled in CSS. The photos arrive from different
+shoots at different times; without a unifying treatment a stage shot, a studio
+portrait and an episode thumbnail fight each other. Two portraits carry an
+offset brass keyline, so the frame device recurs rather than appearing once.
+
+Episode thumbnails are the channel's own artwork, stored locally under
+`assets/img/episodes/<videoId>.*` rather than hotlinked from YouTube. They are
+held in greyscale and released to full colour on hover, the same behaviour as
+the speaking-stage logo wall.
+
+### Motion
+
+Fade-and-rise reveals via `IntersectionObserver`, plus a CSS marquee of podcast
+themes. Everything is disabled under `prefers-reduced-motion`. Content is always
+visible without JS (`.no-js` fallback plus a global `error` failsafe).
+
+---
+
+## Page structure
+
+| # | Band | Ground | Purpose |
+|---|---|---|---|
+| — | Hero + speaking-stage logo wall | bone | Positioning, both CTAs, credibility |
+| 01 | What I believe | ink | Point of view, signature |
+| 02 | What I'm building | paper | Five cards, Fulfillionaire centred as the organising idea |
+| 03 | **Fulfillionaire** | moss | Featured framework + four dimensions |
+| 04 | The Fulfillionaire Podcast | ink | Podcast, rating, episodes, theme marquee |
+| 05 | JP's Fulfillionaire Newsletter | paper | Newsletter + opt-in form |
+| 06 | Speaking | bone | Keynotes and workshops, copy + photo |
+| 07 | Meet JP | paper | Portrait + biography |
+| — | Footer | ink | Link columns, social |
+
+A gold quote band ("The goal was never more…") sat between Meet JP and the
+footer, and a "Know your number." CTA row opened the footer. Both removed.
+The `.quote` / `.on-gold` and `.footer__cta` styles remain in `styles.css`.
+
+A "By the numbers" impact-stats band sat between Work with JP and Meet JP and was
+removed. Its CSS is retained (section 15 of `styles.css`) so the band can be
+restored by pasting the markup back in.
 
 ---
 
 ## Analytics
 
-Provider-agnostic. Wire up Plausible (custom events supported) or Cloudflare Web
-Analytics. To enable Plausible, uncomment the tagged-events script in
-`index.html` `<head>` and set `data-domain`.
+Provider-agnostic. Uncomment a Plausible (or equivalent) script in `<head>` to
+enable. Events fire through a `track()` wrapper in `main.js` that calls
+`window.plausible` and/or pushes to `window.dataLayer` if present, and never
+throws. Declarative clicks are wired via `data-event` attributes in the markup.
 
-Events are dispatched from `main.js` via a safe `track()` wrapper (calls
-`window.plausible` and/or pushes to `window.dataLayer` if present; never throws).
-Declarative clicks are wired through `data-event` attributes in the markup.
-
-| Event name                         | Fires when                                  |
-|------------------------------------|---------------------------------------------|
-| `Calculator CTA Click`             | primary "Calculate Your Freedom Number" CTA |
-| `Footer Calculator Click`          | footer "Know your number." link             |
-| `Newsletter Opt-in`                | newsletter form submitted successfully      |
-| `Newsletter Error`                 | newsletter submission failed                |
-| `YouTube Click`                    | "Watch on YouTube" link                     |
-| `Apple Podcasts Click`             | "Listen on Apple Podcasts" link             |
-| `Scroll Depth: Calculator Beat`    | primary calculator beat scrolled into view  |
+| Event | Fires when |
+|---|---|
+| `Freedom Number Click` | any of the three calculator CTAs |
+| `Fulfillionaire Click` | the Fulfillionaire feature CTA |
+| `Newsletter Opt-in` | newsletter submitted successfully |
+| `Newsletter Error` | newsletter submission failed |
+| `YouTube Click` / `Apple Podcasts Click` | podcast links |
+| `Speaking Enquiry` / `Advisory Enquiry` | the two-up CTAs |
 
 ---
 
-## Newsletter form (GHL)
+## Newsletter form
 
-The form (`#newsletter-form`) is built for the "submit to the GHL endpoint that
-triggers the existing double opt-in workflow" option. Configure it in
-`assets/js/main.js` → `CONFIG.NEWSLETTER_ENDPOINT`. **Do not** paste a raw
-inbound webhook URL into client code — use the GHL-hosted form submit URL.
-Until an endpoint is set, the form runs in a safe demo state (validates and shows
-the confirmation message without sending).
+Configure `CONFIG.NEWSLETTER_ENDPOINT` in `assets/js/main.js`. Use the
+GHL-hosted **form submit URL** — do not paste a raw inbound webhook into client
+code. Until an endpoint is set the form runs in a safe demo state: it validates
+and shows the confirmation copy without sending anything.
 
-Alternatively, embed the existing GHL form iframe in place of `#newsletter-form`.
-
-Built-in protections and states: honeypot field (`#company`), minimum-
-completion-time defense (`CONFIG.MIN_FILL_MS`), client-side validation, loading /
-success / error states, accessible labels and `aria-live` status, and clear
-confirmation instructions.
-
-**Applies tag:** `source:jp-newman-newsletter` (sent as the `tag` field).
+Protections: honeypot field, minimum-completion-time guard
+(`CONFIG.MIN_FILL_MS`), client-side validation, loading/success/error states,
+labelled fields and an `aria-live` status. Applies tag
+`source:jpnewman-newsletter`.
 
 ---
 
-## Freedom Number Calculator
+## ⚠️ Open items — nothing below is verified
 
-At launch the primary CTA and footer link point to the existing standalone
-calculator. The `?source=jp-newman-calculator` query parameter carries the
-required attribution so GHL can apply **`source:jp-newman-calculator`**.
+Search the codebase for `TODO:`.
 
-Fast-follow: migrate or proxy the calculator to `/freedom-number`. `_redirects`
-already stubs that route; swap it for the local page or a Cloudflare Worker proxy
-once migrated, and update the two CTA hrefs in `index.html`. Keep results gated
-behind the existing email opt-in, but do not require the email before the visitor
-has entered enough inputs to see the value of the result.
+**The work (section 02)**
+1. **Personal Investments** — the only card with no destination. Renders as a
+   non-linking `.card--static`. Convert to `<a class="card" href="…">` and re-add
+   the `.card__more` line once a URL exists.
+2. **Newman Private Advisory** — points at the advisory panel in section 06.
+   Confirm, or give it a dedicated destination.
+
+Fulfillionaire is the organising idea, so `.card--feature` holds the centre
+column in moss (tying it to the band below) while the other four flank it.
+Placement is by **named grid area** (`mid`, `one`–`four`), assigned once by
+`:nth-child`; each breakpoint redefines only `grid-template-areas`. To reorder
+or add a card, change the template and the `:nth-child` assignment — never the
+DOM order alone, which is deliberately mission-first for screen readers.
+
+**Copy and figures**
+5. **`$2B+` real estate transacted since 2011** — appears twice. Confirm the
+   figure and the wording.
+6. **Podcast rating** — the block held an invented 4.9 and has been REMOVED
+   rather than ship a fabricated number. Commented markup and the `.rating`
+   styles remain; restore only with a real rating and review count.
+7. **Episode 01 guest name** — the other three rows credit their guest; the
+   Whole Foods episode has a `TODO` where the name goes.
+8. **Podcast name** — set to "The Fulfillionaire Podcast". Confirm the exact
+   published title and update the artwork/branding to match.
+9. **Quote attribution** — confirm the closing line is JP's, or swap it.
+10. **Newsletter cadence** — the proof list and form note both claim one email
+    a week. Confirm, or reword.
+11. **Topic marquee** — currently scrolls abstract themes (FREEDOM, LEGACY,
+    TIME…). Guest names would be far stronger proof; needs ~10 recognisable
+    names to fill the loop.
+
+**Speaking-stage logo wall** — live, five logos. See
+`assets/img/logos/README.md` for how to add more.
+
+**URLs**
+11. Freedom Number calculator (×4, including `_redirects`).
+12. Fulfillionaire destination.
+13. Apple Podcasts. (YouTube is live: `@fulfillionaire`.)
+14. LinkedIn and Instagram.
+15. Contact / speaking / advisory address — currently `hello@jpnewman.com`.
+16. `/privacy` and `/terms` — linked in the footer, pages not yet created.
+
+**Images**
+17. **Hero portrait resolution — the weakest asset on the page.** `jp-portrait.*`
+    comes from `JP Newman Headshot 3.jpg`, whose source is only **400×400**. The
+    4:5 crop leaves 320px of real detail, resampled up to 640×800 with a light
+    unsharp pass. It displays at 412px, so on a 1× screen it is acceptable; on a
+    2× retina screen the browser is stretching 320px of true detail across 824
+    device pixels and it will look soft. **A high-resolution original of this
+    same shot would fix it outright** — the framing is good, only the pixels are
+    short. `JP Newman Headshot 2` (800×1067) is sharper and now used in
+    section 01.
+18. Each of the three portraits uses a different source photo (hero = Headshot 3,
+    belief = Headshot 2, about = Headshot 1), so none repeats.
+19. **Speaking photo resolution** — `speaking.*` is the supplied keynote shot,
+    cropped 4:5 from a 683×1024 source. It displays around 400px wide, so it is
+    roughly 1.7×: fine on standard displays, slightly soft on 2× retina.
+20. **OG image** — `assets/img/og-image.png` is generated. Replace with artwork.
+21. **App icons** — `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`.
 
 ---
 
-## SEO & sharing
+## Going live
 
-Unique title, meta description, canonical URL, Open Graph + Twitter card tags,
-`Person` schema (JSON-LD), favicon/app icons, `site.webmanifest`, `robots.txt`,
-and `sitemap.xml` are all in place. Replace the placeholder OG image before
-launch (see below).
+**In plain terms:** the site lives at **jp-newman.com**, replacing the WordPress
+site that is there now. The domain stays registered at GoDaddy. All that changes
+is one setting telling the internet "the files are over here now."
 
----
+Neither jp-newman.com nor jpnewman.com has MX records, so **no email runs on
+this domain** and DNS changes cannot break any mailbox. (jpnewman.com, without
+the hyphen, belongs to a different JP Newman. It is not ours.)
 
-## ⚠️ Placeholders to replace before launch (Open Items)
+### 1. Put the code on GitHub
 
-Search the codebase for `TODO:`. Nothing below is real yet:
+Create an empty repo, then push. Nothing goes live at this step.
 
-1. **Freedom Number Calculator URL** — currently `https://freedom.fulfillionaire.com/`
-   (in `index.html` ×2 and `_redirects`).
-2. **YouTube URL** — `index.html` (podcast link + footer).
-3. **Apple Podcasts URL** — `index.html`.
-4. **LinkedIn / Instagram URLs** — footer.
-5. **Contact destination** — footer (`mailto:hello@jpnewman.com`).
-6. **Privacy policy** — footer links to `/privacy` (page not yet created).
-7. **Newsletter GHL endpoint** — `assets/js/main.js` → `CONFIG.NEWSLETTER_ENDPOINT`.
-8. **Portrait image** — `assets/img/jp-portrait.{avif,webp,jpg}` are generated
-   placeholders. Replace with the approved editorial portrait at the same paths
-   and dimensions (960×1200, 4:5), updating the `alt` text.
-9. **OG / social-sharing image** — `assets/img/og-image.png` is a placeholder.
-10. **App icons** — `assets/img/icon-192.png`, `icon-512.png`,
-    `apple-touch-icon.png` are placeholders.
+### 2. Connect a host
 
-Before launch also: confirm the $2 billion Thrive FP figure and wording; confirm
-the GHL sender address is `info@fulfillionaire.com` (not the `.con` typo); verify
-both GHL source tags fire; run the full launch checklist in the build spec.
+Netlify or Cloudflare Pages. Both are free, both read the `_headers` and
+`_redirects` files in this repo, and both redeploy automatically on every push.
 
----
+Settings: **framework preset None**, **build command empty**, **publish
+directory `/`**. There is no build step — the repo root is the site.
 
-## Accessibility & performance notes
+**Netlify is the easier of the two here.** GoDaddy cannot point a root domain
+at a host via CNAME, and Netlify provides a plain A record for the apex.
+Cloudflare Pages generally wants the domain's nameservers moved to Cloudflare
+first: better long term, more moving parts on launch day.
 
-- Semantic headings (single H1, section H2s), skip link, keyboard-operable
-  controls, visible gold focus rings, labelled fields with useful validation
-  messages, decorative motif hidden from assistive tech.
-- All foreground/background combinations meet WCAG AA (verified in context,
-  including over the gradient).
-- Self-hosted subset fonts, preloaded; responsive AVIF/WebP/JPEG portrait with
-  explicit dimensions; no animation libraries; minimal deferred JS; no layout
-  shift. Targets Lighthouse 95+ across all four categories.
+### 3. Test on the free preview URL
+
+Both hosts give you a `*.netlify.app` / `*.pages.dev` address. **Everything gets
+checked there before DNS is touched** — on a phone as well as a laptop. The live
+site is still untouched at this point, so there is no rush.
+
+### 4. Clear the launch blockers
+
+See Open Items below. The newsletter form currently validates and shows its
+success message but **sends nothing**, and several links point at placeholders.
+
+### 5. Point the domain
+
+In GoDaddy's DNS panel, change the **A record** for the root and the **CNAME**
+for `www` to the values the host gives you.
+
+**Do not touch MX or TXT records.** There is no email today, but those records
+are also where SPF/DKIM/DMARC live if email is ever added.
+
+Allow up to a few hours for DNS to propagate. HTTPS certificates are issued
+automatically by both hosts once the domain resolves.
+
+### 6. Afterwards
+
+Once the new site is confirmed live, the old **GoDaddy WordPress hosting plan
+can be cancelled** — it is no longer serving anything. Cancel the *hosting*,
+not the *domain registration*: losing the domain would take the site down.
+
+### Old URLs
+
+The retired WordPress site had 22 live URLs (homepage, `/podcast-episodes/`,
+and 20 episode posts). `_redirects` maps every one of them onto the new site so
+shared links and search results do not land on an error page, with a catch-all
+for anything unlisted. Nothing further is needed for the retirement.
+
+## Accessibility & performance
+
+Semantic headings (single H1, section H2s), skip link, keyboard-operable menu
+with `aria-expanded` and Escape-to-close, visible brass focus rings, labelled
+fields with useful validation, decorative marquee and ticks hidden from
+assistive tech. Foreground/background pairs use the ground-appropriate brass
+token to hold WCAG AA. Responsive AVIF/WebP/JPEG portraits with explicit
+dimensions, no animation libraries, ~5KB of deferred JS, no layout shift.
