@@ -1795,6 +1795,35 @@ ul { margin: 0; padding: 0; list-style: none; }
   /* Stops "FOUNDER OF FULFILLIONAIRE" breaking across two lines. */
   .hero__eyebrow { align-items: flex-start; gap: 0.7rem; }
   .hero__eyebrow::before { width: 1.75rem; margin-top: 0.5em; flex: none; }
+
+  /* Four stacked 16:9 episode cards ran to roughly 1400px - nearly two
+     screens of podcast alone, on a page that was already 17 screens long.
+     Swiping sideways is how people browse episodes on a phone anyway, and
+     it costs the height of three cards. The row bleeds to the screen edges
+     so the next card peeks in and the gesture is discoverable. */
+  .eps {
+    display: flex;
+    gap: 1rem;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    /* Without this the snap aligns to the scroll box, not the padding box,
+       and yanks the first card flush against the screen edge. */
+    scroll-padding-inline: var(--gutter);
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-inline: calc(var(--gutter) * -1);
+    padding-inline: var(--gutter);
+    padding-bottom: 0.25rem;
+  }
+  .eps::-webkit-scrollbar { display: none; }
+  .eps > li { flex: 0 0 76%; scroll-snap-align: start; }
+
+  /* Section headings were running to three lines and, with 64px of band
+     padding above them, a section's header alone ate half the screen
+     before any content appeared. */
+  .band { padding-block: 3.25rem; }
+  .d2 { font-size: clamp(1.75rem, 8.2vw, 2rem); }
 }
 
 @media (max-width: 400px) {
