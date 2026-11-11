@@ -39,6 +39,9 @@
 
   <link rel="stylesheet" href="assets/css/styles.css" />
 
+  <!-- Cloudflare Turnstile, same widget as fulfillionaire.com. -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -616,6 +619,9 @@
                        placeholder="jane@example.com" required aria-describedby="err-email" />
                 <span class="error" id="err-email">Please enter a valid email address.</span>
               </div>
+
+              <div class="cf-turnstile" id="nl-turnstile"
+                   data-sitekey="0x4AAAAAAEbyjqgotwk3KByF" data-theme="dark"></div>
 
               <button type="submit" class="btn btn--brass" id="nl-submit" data-event="Newsletter Opt-in">
                 Subscribe <span class="arw" aria-hidden="true">&rarr;</span>

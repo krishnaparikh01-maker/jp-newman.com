@@ -8,11 +8,17 @@
   'use strict';
 
   var CONFIG = {
-    /* Paste the GHL-hosted form submit URL here (NOT a raw inbound webhook).
-       Until it is set, the form runs in a safe demo state: it validates and
-       shows the confirmation copy without sending anything. */
-    NEWSLETTER_ENDPOINT: '',
-    NEWSLETTER_TAG: 'source:jpnewman-newsletter',
+    /* GoHighLevel inbound webhook, the same endpoint and sub-account
+       (KV9ByFOi2JhXySNLQzjH) that fulfillionaire.com posts to, so signups from
+       here land in the same place and run the same workflow. */
+    NEWSLETTER_ENDPOINT: 'https://services.leadconnectorhq.com/hooks/' +
+      'KV9ByFOi2JhXySNLQzjH/webhook-trigger/e5fb3990-024b-44c7-a91c-822037b4ccf3',
+
+    /* Matches the tag fulfillionaire.com sends, so the existing workflow picks
+       these up unchanged. SOURCE is extra, for telling the two sites apart. */
+    NEWSLETTER_TAG: 'fulfillionaire newsletter',
+    NEWSLETTER_SOURCE: 'jp-newman.com',
+
     MIN_FILL_MS: 2500
   };
 
@@ -132,6 +138,15 @@
 
   if (form) {
     var loadedAt = Date.now();
+
+    /* True only once Turnstile has actually rendered. If the script is blocked
+       or fails to load, the check is skipped rather than locking everyone out
+       of subscribing. */
+    var widgetReady = false;
+    (function waitForTurnstile(tries) {
+      if (window.turnstile && document.querySelector('#nl-turnstile iframe')) { widgetReady = true; return; }
+      if (tries > 0) window.setTimeout(function () { waitForTurnstile(tries - 1); }, 400);
+    })(25);
     var status = $('#form-status');
     var submit = $('#nl-submit');
     var fFirst = $('#f-first');
@@ -171,6 +186,25 @@
         return;
       }
 
+      /* Require a completed Turnstile challenge before anything is sent.
+         Rendering the widget alone protects nothing — the token has to be
+         checked, which is the step fulfillionaire.com is missing. The token
+         is also forwarded, so it can be verified server-side later without
+         touching this file.
+
+         Note the honest limit: with no backend there is nothing to validate
+         the token against, so this stops bots that do not solve the challenge
+         in a real browser, not one posting straight to the webhook. The
+         honeypot, the fill-time check and double opt-in cover the rest. */
+      var token = '';
+      if (widgetReady && window.turnstile) {
+        try { token = window.turnstile.getResponse() || ''; } catch (e) { token = ''; }
+        if (!token) {
+          setStatus('Please complete the verification above.', 'err');
+          return;
+        }
+      }
+
       submit.disabled = true;
       setStatus('Sending…');
 
@@ -187,21 +221,49 @@
         return;
       }
 
-      var body = new FormData();
-      body.append('first_name', first.value.trim());
-      body.append('email', email.value.trim());
-      body.append('tag', CONFIG.NEWSLETTER_TAG);
+      /* POST through a hidden iframe rather than fetch(). The GoHighLevel
+         webhook sends no CORS headers, so a fetch() is blocked by the browser
+         and the signup is silently lost. A form targeting an iframe is a plain
+         navigation, which CORS does not apply to. This is the same approach
+         fulfillionaire.com uses, for the same reason. */
+      var iframe = document.createElement('iframe');
+      iframe.name = 'nlTarget_' + Date.now();
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
 
-      fetch(CONFIG.NEWSLETTER_ENDPOINT, { method: 'POST', body: body })
-        .then(function (res) {
-          if (!res.ok) throw new Error('HTTP ' + res.status);
-          done();
-        })
-        .catch(function () {
-          submit.disabled = false;
-          setStatus('Something went wrong. Please try again, or email hello@jpnewman.com.', 'err');
-          track('Newsletter Error');
-        });
+      var post = document.createElement('form');
+      post.method = 'POST';
+      post.action = CONFIG.NEWSLETTER_ENDPOINT;
+      post.target = iframe.name;
+      post.style.display = 'none';
+
+      var fields = {
+        first_name: first.value.trim(),
+        email: email.value.trim(),
+        tags: CONFIG.NEWSLETTER_TAG,
+        source: CONFIG.NEWSLETTER_SOURCE
+      };
+      if (token) fields['cf-turnstile-response'] = token;
+
+      Object.keys(fields).forEach(function (key) {
+        var input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = key;
+        input.value = fields[key];
+        post.appendChild(input);
+      });
+
+      document.body.appendChild(post);
+      post.submit();
+
+      /* The iframe gives no readable response (cross-origin), so success is
+         assumed once the POST is away, then the scaffolding is cleaned up. */
+      window.setTimeout(function () {
+        done();
+        if (window.turnstile && widgetReady) { try { window.turnstile.reset(); } catch (e) {} }
+        post.remove();
+        iframe.remove();
+      }, 900);
     });
   }
 

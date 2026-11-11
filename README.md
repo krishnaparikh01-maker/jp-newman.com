@@ -162,17 +162,39 @@ throws. Declarative clicks are wired via `data-event` attributes in the markup.
 
 ## Newsletter form
 
-Configure `CONFIG.NEWSLETTER_ENDPOINT` in `assets/js/main.js`. Use the
-GHL-hosted **form submit URL** — do not paste a raw inbound webhook into client
-code. Until an endpoint is set the form runs in a safe demo state: it validates
-and shows the confirmation copy without sending anything.
+Posts to the GoHighLevel **inbound webhook** for sub-account
+`KV9ByFOi2JhXySNLQzjH` — the same endpoint fulfillionaire.com uses, so signups
+from both sites land in one place and run the same workflow. Tagged
+`fulfillionaire newsletter`, with an extra `source: jp-newman.com` field so the
+two sites can be told apart.
 
-Protections: honeypot field, minimum-completion-time guard
-(`CONFIG.MIN_FILL_MS`), client-side validation, loading/success/error states,
-labelled fields and an `aria-live` status. Applies tag
-`source:jpnewman-newsletter`.
+**Why a hidden iframe and not `fetch()`.** The webhook sends no CORS headers, so
+a `fetch()` is blocked by the browser and the signup is silently lost. A form
+POSTing into a hidden iframe is an ordinary navigation, which CORS does not
+apply to. The response cannot be read back, so success is assumed once the POST
+is away. fulfillionaire.com does the same thing for the same reason.
 
----
+### Bot protection — what is real and what is not
+
+Four layers, in descending order of how much they actually do:
+
+1. **Double opt-in** (GHL workflow). The only one that truly keeps the list
+   clean: a bot can submit, but it never clicks the confirmation link, so it
+   never becomes a subscriber.
+2. **Honeypot field** (`#company`) — hidden from people, filled by naive bots.
+   Fails silently so a scraper learns nothing.
+3. **Minimum fill time** (`CONFIG.MIN_FILL_MS`, 2.5s) — catches instant submits.
+4. **Cloudflare Turnstile** — rendered, and **enforced**: the submit handler
+   calls `turnstile.getResponse()` and refuses to send without a token, which is
+   the step fulfillionaire.com is missing (it renders the widget but never reads
+   the token, so there it blocks nothing).
+
+**The honest limit on Turnstile here.** This is a static site with no backend, so
+there is nothing to *verify* the token against — Cloudflare's siteverify call
+needs a server. Requiring the token stops bots that will not solve the challenge
+in a real browser; it does not stop one POSTing straight to the webhook. The
+token is forwarded as `cf-turnstile-response` so server-side verification can be
+added later without touching the form. **Double opt-in remains the real defence.**
 
 ## ⚠️ Open items — nothing below is verified
 
@@ -189,10 +211,15 @@ Search the codebase for `TODO:`.
   both render as `.card--static` with no hover affordance
 
 **Still open**
-1. **Newsletter endpoint** — `CONFIG.NEWSLETTER_ENDPOINT` in `assets/js/main.js`
-   is an empty string, so the form validates and shows its success message but
-   **sends nothing**. Needs the GoHighLevel hosted form submit URL (not a raw
-   inbound webhook).
+1. **Turnstile hostname — the widget does not work yet.** The site key
+   `0x4AAAAAAEbyjqgotwk3KByF` is copied from fulfillionaire.com and is scoped to
+   that domain, so on any other host it creates its container and hidden input
+   but **renders no iframe**, and `getResponse()` throws. Until the hostname is
+   added in Cloudflare (Turnstile -> the widget -> Hostname Management), add
+   `jp-newman.com`, `www.jp-newman.com` and the GitHub Pages preview host,
+   Turnstile contributes **nothing** on this site. The code fails open on
+   purpose: when the widget has not rendered the check is skipped, so visitors
+   can still subscribe rather than being locked out by a broken widget.
 2. **Governing law** — `terms/index.html` assumes Texas because Thrive FP is
    Austin-based. Confirm or replace.
 3. **Legal review** — the privacy policy and terms were written to match what the

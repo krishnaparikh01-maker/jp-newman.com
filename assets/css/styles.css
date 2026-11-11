@@ -1340,6 +1340,11 @@ ul { margin: 0; padding: 0; list-style: none; }
 .field.is-invalid input { border-color: #C7674A; }
 .field.is-invalid .error { display: block; }
 
+/* Turnstile renders a fixed-size iframe of its own, so it only needs room and
+   alignment. In the inline form it spans the whole row above the button. */
+#nl-turnstile { margin: 0.25rem 0 0.15rem; min-height: 65px; }
+.form--inline #nl-turnstile { grid-column: 1 / -1; }
+
 .form .btn { width: 100%; justify-content: center; margin-top: 0.4rem; }
 .form button[disabled] { opacity: 0.6; cursor: not-allowed; }
 
