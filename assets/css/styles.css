@@ -1811,9 +1811,29 @@ ul { margin: 0; padding: 0; list-style: none; }
   .actions { gap: 0.7rem; }
   .actions .btn { width: auto; justify-content: center; }
 
-  /* Stops "FOUNDER OF FULFILLIONAIRE" breaking across two lines. */
-  .hero__eyebrow { align-items: flex-start; gap: 0.7rem; }
-  .hero__eyebrow::before { width: 1.75rem; margin-top: 0.5em; flex: none; }
+  /* The eyebrow does not fit one line on a phone, and left to itself it
+     broke mid-phrase as "... FOUNDER OF / FULFILLIONAIRE". Drop the middot
+     and let each part take its own line, so the break lands between the two
+     ideas instead of inside one. */
+  /* Block, not flex: as a flex row the two parts sat side by side as
+     columns and wrapped inside themselves. The brass rule moves above the
+     text, which is the same treatment the numbered section labels use. */
+  .hero__eyebrow { display: block; letter-spacing: 0.16em; }
+  .hero__eyebrow::before {
+    display: block;
+    width: 1.75rem;
+    height: 1px;
+    margin: 0 0 0.85rem;
+  }
+  .hero__eyebrow-sep { display: none; }
+  .hero__eyebrow-part { display: block; }
+  .hero__eyebrow-part + .hero__eyebrow-part { margin-top: 0.3em; }
+
+  /* Meet JP reads name, face, then what he does: the portrait sits straight
+     under the heading and the tags fall below it, with room on either side
+     so they are not crowded between two heavy blocks. */
+  #about .about__portrait { margin-block: 1.75rem 0; }
+  #about .creds { margin-top: 1.5rem !important; margin-bottom: 1.9rem; }
 
   /* REVERTED: the episode row was a horizontal snap carousel here, built to
      save nearly two screens of height. It measured clean in Chromium - the

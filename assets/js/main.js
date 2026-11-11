@@ -468,8 +468,9 @@
     var phoneJob = relocator($('.news__phone'), $('.news__grid .lede'), 'is-inline');
     if (phoneJob) jobs.push(phoneJob);
 
-    /* 3. Meet JP portrait -> after the credential tags. */
-    var portraitJob = relocator($('.about__portrait'), $('#about .creds'));
+    /* 3. Meet JP portrait -> directly under the heading, so the credential
+          tags sit below the picture rather than above it. */
+    var portraitJob = relocator($('.about__portrait'), $('#abt-h'));
     if (portraitJob) jobs.push(portraitJob);
 
     function apply() {
