@@ -237,7 +237,7 @@ Search the codebase for `TODO:`.
    that domain, so on any other host it creates its container and hidden input
    but **renders no iframe**, and `getResponse()` throws. Until the hostname is
    added in Cloudflare (Turnstile -> the widget -> Hostname Management), add
-   `jp-newman.com`, `www.jp-newman.com` and the GitHub Pages preview host,
+   `jpnewman.com`, `www.jpnewman.com` and the GitHub Pages preview host,
    Turnstile contributes **nothing** on this site. The code fails open on
    purpose: when the widget has not rendered the check is skipped, so visitors
    can still subscribe rather than being locked out by a broken widget.
@@ -280,65 +280,64 @@ Search the codebase for `TODO:`.
 
 ## Going live
 
-**In plain terms:** the site lives at **jp-newman.com**, replacing the WordPress
-site that is there now. The domain stays registered at GoDaddy. All that changes
-is one setting telling the internet "the files are over here now."
+The site is going up at **jpnewman.com**, a domain registered at GoDaddy on
+2 July 2026 and currently showing a GoDaddy parking page. It is hosted on
+**GitHub Pages** out of this repo, which rebuilds on every push.
 
-Neither jp-newman.com nor jpnewman.com has MX records, so **no email runs on
-this domain** and DNS changes cannot break any mailbox. (jpnewman.com, without
-the hyphen, belongs to a different JP Newman. It is not ours.)
+**jp-newman.com is a different, older domain** (registered 2021) still running
+JP's previous WordPress site on WP Engine. Launching jpnewman.com does not
+touch it. Retiring it is a separate decision, below.
 
-### 1. Put the code on GitHub
+Neither domain has MX records, so **no email runs on either** and DNS changes
+cannot break a mailbox.
 
-Create an empty repo, then push. Nothing goes live at this step.
+### 1. Tell GitHub the domain  (done in this repo)
 
-### 2. Connect a host
+`CNAME` at the repo root contains `jpnewman.com`. GitHub Pages reads this file
+and serves the site at that domain once DNS points at it.
 
-Netlify or Cloudflare Pages. Both are free, both read the `_headers` and
-`_redirects` files in this repo, and both redeploy automatically on every push.
+### 2. Point DNS at GitHub  (GoDaddy, the only manual step)
 
-Settings: **framework preset None**, **build command empty**, **publish
-directory `/`**. There is no build step — the repo root is the site.
+In GoDaddy -> jpnewman.com -> DNS, **delete the parked A record** and add these
+four, all with name `@`:
 
-**Netlify is the easier of the two here.** GoDaddy cannot point a root domain
-at a host via CNAME, and Netlify provides a plain A record for the apex.
-Cloudflare Pages generally wants the domain's nameservers moved to Cloudflare
-first: better long term, more moving parts on launch day.
+    185.199.108.153
+    185.199.109.153
+    185.199.110.153
+    185.199.111.153
 
-### 3. Test on the free preview URL
+Then one CNAME: name `www`, value `krishnaparikh01-maker.github.io`.
 
-Both hosts give you a `*.netlify.app` / `*.pages.dev` address. **Everything gets
-checked there before DNS is touched** — on a phone as well as a laptop. The live
-site is still untouched at this point, so there is no rush.
+**Do not touch MX or TXT records.**
+
+### 3. Turn on HTTPS
+
+GitHub -> repo -> Settings -> Pages. The custom domain should read
+`jpnewman.com` with a green check once DNS resolves (minutes to a few hours).
+Then tick **Enforce HTTPS**. The certificate is issued automatically and free.
 
 ### 4. Clear the launch blockers
 
-See Open Items below. The newsletter form currently validates and shows its
-success message but **sends nothing**, and several links point at placeholders.
+See Open Items. The Turnstile hostname registration matters most: until
+`jpnewman.com` and `www.jpnewman.com` are added in Cloudflare, the widget
+renders nothing and the newsletter form has no bot protection at all.
 
-### 5. Point the domain
+### 5. Afterwards — the old site
 
-In GoDaddy's DNS panel, change the **A record** for the root and the **CNAME**
-for `www` to the values the host gives you.
+Once jpnewman.com is confirmed live, decide what happens to **jp-newman.com**:
+leave it, or point it here as a redirect. If it is retired, the WP Engine
+hosting plan can be cancelled. Cancel the *hosting*, never the *domain
+registration*.
 
-**Do not touch MX or TXT records.** There is no email today, but those records
-are also where SPF/DKIM/DMARC live if email is ever added.
+### A note on `_redirects`
 
-Allow up to a few hours for DNS to propagate. HTTPS certificates are issued
-automatically by both hosts once the domain resolves.
+`_redirects` maps the 22 URLs of the old WordPress site onto this one. **It is
+inert on GitHub Pages** — the file is a Netlify and Cloudflare Pages feature
+and GitHub ignores it. It is kept because it is the ready-made answer if
+jp-newman.com is ever moved to one of those hosts, or if its old links need
+preserving. On jpnewman.com, a brand-new domain with no history, there are no
+old URLs to redirect.
 
-### 6. Afterwards
-
-Once the new site is confirmed live, the old **GoDaddy WordPress hosting plan
-can be cancelled** — it is no longer serving anything. Cancel the *hosting*,
-not the *domain registration*: losing the domain would take the site down.
-
-### Old URLs
-
-The retired WordPress site had 22 live URLs (homepage, `/podcast-episodes/`,
-and 20 episode posts). `_redirects` maps every one of them onto the new site so
-shared links and search results do not land on an error page, with a catch-all
-for anything unlisted. Nothing further is needed for the retirement.
 
 ## Accessibility & performance
 

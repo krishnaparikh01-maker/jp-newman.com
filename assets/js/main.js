@@ -20,7 +20,7 @@
        only. It matches the tag fulfillionaire.com's own signups carry.
        SOURCE lands on the contact's Contact Source field. */
     NEWSLETTER_TAG: 'fulfillionaire newsletter lead',
-    NEWSLETTER_SOURCE: 'jp-newman.com',
+    NEWSLETTER_SOURCE: 'jpnewman.com',
 
     MIN_FILL_MS: 2500
   };
