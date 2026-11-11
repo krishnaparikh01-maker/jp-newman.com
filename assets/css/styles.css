@@ -1823,6 +1823,59 @@ ul { margin: 0; padding: 0; list-style: none; }
      speculatively, because there is no Safari to test a fix against here.
      Any retry needs a real iOS device before it ships. */
 
+  /* --- Logo wall as a moving marquee -------------------------------------
+     Stacked in a grid the five marks read as a ragged list; moving, they
+     read as a run of credentials.
+
+     Built on the same mechanism as the topic marquee further down the page,
+     which has always been fine on iOS: a parent with overflow:hidden and a
+     track at width:max-content, translated by -50% over a duplicated set.
+     Deliberately NOT the pattern that broke the episode carousel - there
+     are no negative margins and no overflow-x:auto, so the track is clipped
+     by its parent and can never widen the document. It stays inside the
+     container gutters rather than bleeding to the screen edges, which is
+     what required the negative margins last time.
+
+     Both classes are added by JS, and only when the viewport is small and
+     the visitor has not asked for reduced motion. Without JS, or with
+     reduced motion, the static grid above is what renders. */
+  .strip__inner.is-marquee {
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 7%, #000 93%, transparent);
+  }
+  .logowall.is-marquee {
+    display: flex;
+    flex-wrap: nowrap;
+    align-self: flex-start;
+    width: max-content;
+    gap: 2.75rem;
+    animation: slide 28s linear infinite;
+  }
+  .logowall.is-marquee .logowall__slot { flex: none; grid-column: auto; }
+  .logowall.is-marquee .logowall__slot img {
+    max-height: 2rem;
+    max-width: none;
+    opacity: 0.6;
+  }
+
+  /* --- Newsletter phone, moved above the bullets --------------------------
+     At full width below the form it was a 535px slab at the end of the
+     section. Moved up to introduce the bullets and cut to a third of the
+     width, it does the job of showing what arrives without taking a screen
+     to do it. The picture stays absolute so the phone still bleeds off the
+     bottom of its panel, which is the device the desktop layout uses. */
+  .news__phone.is-inline {
+    max-width: 12.5rem;
+    min-height: 14rem;
+    margin: 0 0 1.75rem;
+    padding-inline: 0;
+  }
+  .news__phone.is-inline picture {
+    top: 1.15rem;
+    width: calc(100% - 2.2rem);
+  }
+
   /* Section headings were running to three lines and, with 64px of band
      padding above them, a section's header alone ate half the screen
      before any content appeared. */

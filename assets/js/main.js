@@ -395,6 +395,99 @@
     }
   })();
 
+  /* ------------------------------------------------ mobile rearrangement */
+
+  /* Three things that only make sense on a phone: the logo wall moves, and
+     two images sit somewhere else in the reading order than the desktop
+     grid puts them.
+
+     All of it is applied here rather than in the markup so the HTML stays
+     one source of truth and the desktop layout is untouched. Each piece
+     records where it came from and puts it back when the viewport grows,
+     so resizing or rotating cannot strand an element in the wrong place. */
+  (function mobileLayout() {
+    var mq = window.matchMedia('(max-width: 640px)');
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var jobs = [];
+
+    /* Moves `node` to just after `ref`, remembering its original slot. */
+    function relocator(node, ref, cls) {
+      if (!node || !ref) return null;
+      var home = node.parentNode;
+      var after = node.nextSibling;
+      return {
+        on: function () {
+          if (node.previousSibling === ref) return;
+          ref.parentNode.insertBefore(node, ref.nextSibling);
+          if (cls) node.classList.add(cls);
+        },
+        off: function () {
+          if (node.parentNode === home && node.nextSibling === after) return;
+          home.insertBefore(node, after);
+          if (cls) node.classList.remove(cls);
+        }
+      };
+    }
+
+    /* 1. Logo wall -> marquee. The track needs its content twice over for
+          translateX(-50%) to loop seamlessly; the copies are aria-hidden so
+          a screen reader hears the five marks once. */
+    var wall = $('.logowall');
+    var strip = $('.strip__inner');
+    if (wall && strip) {
+      var originals = $$('.logowall__slot', wall);
+      var clones = null;
+      jobs.push({
+        on: function () {
+          if (reduce.matches || clones) return;
+          clones = originals.map(function (slot) {
+            var copy = slot.cloneNode(true);
+            copy.setAttribute('aria-hidden', 'true');
+            /* The copies live off the right-hand edge of a clipped track, so
+               a lazy loader may never consider them visible and the second
+               half of the loop would run blank. They are the same URLs the
+               originals just fetched, so eager costs nothing. */
+            $$('img', copy).forEach(function (im) { im.loading = 'eager'; });
+            wall.appendChild(copy);
+            return copy;
+          });
+          wall.classList.add('is-marquee');
+          strip.classList.add('is-marquee');
+        },
+        off: function () {
+          if (!clones) return;
+          clones.forEach(function (el) { el.parentNode.removeChild(el); });
+          clones = null;
+          wall.classList.remove('is-marquee');
+          strip.classList.remove('is-marquee');
+        }
+      });
+    }
+
+    /* 2. Newsletter phone -> above the bullets, smaller. */
+    var phoneJob = relocator($('.news__phone'), $('.news__grid .lede'), 'is-inline');
+    if (phoneJob) jobs.push(phoneJob);
+
+    /* 3. Meet JP portrait -> after the credential tags. */
+    var portraitJob = relocator($('.about__portrait'), $('#about .creds'));
+    if (portraitJob) jobs.push(portraitJob);
+
+    function apply() {
+      jobs.forEach(function (job) { (mq.matches ? job.on : job.off)(); });
+    }
+
+    apply();
+    if (mq.addEventListener) mq.addEventListener('change', apply);
+    else if (mq.addListener) mq.addListener(apply);
+    if (reduce.addEventListener) reduce.addEventListener('change', apply);
+
+    var rt;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(rt);
+      rt = window.setTimeout(apply, 150);
+    });
+  })();
+
   /* ------------------------------------------------------------- failsafe */
 
   /* If anything above throws in an older browser, make sure no revealable
