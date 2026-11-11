@@ -68,6 +68,12 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* Browsers default <figure> to `margin: 1em 40px`. Every figure here is
+   positioned by its grid, so that 40px silently inset the Meet JP portrait
+   to 247px inside a 327px column on a phone. The other figures each zero it
+   locally; resetting it once stops the next one being missed. */
+figure { margin: 0; }
+
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
@@ -1708,9 +1714,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   .eps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .cards { grid-template-columns: 1fr; }
+  /* Tried these two-up to save height. At 155px a column the descriptions
+     broke to three words a line, which cost more in readability than the
+     scrolling was worth. They stay stacked. */
   .cards.cards--portfolio {
     grid-template-columns: 1fr;
     grid-template-areas: "mid" "one" "two" "three" "four";
+    gap: 1rem;
   }
   .card--feature { text-align: left; align-items: stretch; }
 
@@ -1744,9 +1754,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   .eps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
   .cards { grid-template-columns: 1fr; }
+  /* Tried these two-up to save height. At 155px a column the descriptions
+     broke to three words a line, which cost more in readability than the
+     scrolling was worth. They stay stacked. */
   .cards.cards--portfolio {
     grid-template-columns: 1fr;
     grid-template-areas: "mid" "one" "two" "three" "four";
+    gap: 1rem;
   }
   .card--feature { text-align: left; align-items: stretch; }
   .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1823,7 +1837,20 @@ ul { margin: 0; padding: 0; list-style: none; }
      padding above them, a section's header alone ate half the screen
      before any content appeared. */
   .band { padding-block: 3.25rem; }
+
+  /* Display type is set at 0.88 line-height, which is right at 80px on a
+     desktop headline and far too tight at 31px, where three cramped lines
+     read as one grey block. Loosen it and the headings breathe. */
+  .d1, .d2, .d3 { line-height: 1.02; letter-spacing: -0.02em; }
   .d2 { font-size: clamp(1.75rem, 8.2vw, 2rem); }
+
+  /* Figures were capped at 22rem, narrower than the column, so portraits
+     sat inset from the text they belong to. Let them fill it. */
+  .about__portrait,
+  .speaking__figure,
+  .belief__figure { max-width: none; }
+
+  .cards--portfolio .card { padding: 1.35rem 1.25rem 1.2rem; }
 }
 
 @media (max-width: 400px) {
