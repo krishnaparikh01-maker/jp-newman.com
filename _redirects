@@ -34,8 +34,8 @@
 /from-wall-street-burnout-to-25m-arr/                                 /#podcast  301
 
 # --- Fast-follow: local Freedom Number route --------------------------------
-# TODO: replace with the confirmed calculator URL, or a local page once migrated.
-/freedom-number   https://freedom.fulfillionaire.com/?source=jp-newman-calculator   302
+# Shorthand route to the calculator.
+/freedom-number   https://fulfillionaire.com/freedomnumber/   301
 
 # --- Everything else from the old site -> homepage ---------------------------
 # Covers WordPress leftovers (/wp-admin, /feed, /xmlrpc.php, /author/...) and

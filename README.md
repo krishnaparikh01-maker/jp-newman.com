@@ -178,47 +178,37 @@ labelled fields and an `aria-live` status. Applies tag
 
 Search the codebase for `TODO:`.
 
-**The work (section 02)**
-1. **Personal Investments** — the only card with no destination. Renders as a
-   non-linking `.card--static`. Convert to `<a class="card" href="…">` and re-add
-   the `.card__more` line once a URL exists.
-2. **Newman Private Advisory** — points at the advisory panel in section 06.
-   Confirm, or give it a dedicated destination.
+**Resolved — destinations now live**
+- Freedom Number calculator -> `fulfillionaire.com/freedomnumber/` (3 places)
+- Join the community -> `fulfillionaire.com/workshop`. Now the primary CTA in the
+  Fulfillionaire box, with Find Your Number demoted to secondary.
+- Apple Podcasts, LinkedIn, Instagram -> real destinations
+- Contact and speaking enquiries -> `info@fulfillionaire.com`
+- Privacy and Terms -> real pages at `/privacy/` and `/terms/`
+- Personal Investments and Newman Private Advisory -> deliberately NOT links;
+  both render as `.card--static` with no hover affordance
 
-Fulfillionaire is the organising idea, so `.card--feature` holds the centre
-column in moss (tying it to the band below) while the other four flank it.
-Placement is by **named grid area** (`mid`, `one`–`four`), assigned once by
-`:nth-child`; each breakpoint redefines only `grid-template-areas`. To reorder
-or add a card, change the template and the `:nth-child` assignment — never the
-DOM order alone, which is deliberately mission-first for screen readers.
-
-**Copy and figures**
-5. **`$2B+` real estate transacted since 2011** — appears twice. Confirm the
-   figure and the wording.
-6. **Podcast rating** — the block held an invented 4.9 and has been REMOVED
-   rather than ship a fabricated number. Commented markup and the `.rating`
-   styles remain; restore only with a real rating and review count.
-7. **Episode 01 guest name** — the other three rows credit their guest; the
-   Whole Foods episode has a `TODO` where the name goes.
-8. **Podcast name** — set to "The Fulfillionaire Podcast". Confirm the exact
-   published title and update the artwork/branding to match.
-9. **Quote attribution** — confirm the closing line is JP's, or swap it.
-10. **Newsletter cadence** — the proof list and form note both claim one email
-    a week. Confirm, or reword.
-11. **Topic marquee** — currently scrolls abstract themes (FREEDOM, LEGACY,
-    TIME…). Guest names would be far stronger proof; needs ~10 recognisable
-    names to fill the loop.
-
-**Speaking-stage logo wall** — live, five logos. See
-`assets/img/logos/README.md` for how to add more.
-
-**URLs**
-11. Freedom Number calculator (×4, including `_redirects`).
-12. Fulfillionaire destination.
-13. Apple Podcasts. (YouTube is live: `@fulfillionaire`.)
-14. LinkedIn and Instagram.
-15. Contact / speaking / advisory address — currently `hello@jpnewman.com`.
-16. `/privacy` and `/terms` — linked in the footer, pages not yet created.
+**Still open**
+1. **Newsletter endpoint** — `CONFIG.NEWSLETTER_ENDPOINT` in `assets/js/main.js`
+   is an empty string, so the form validates and shows its success message but
+   **sends nothing**. Needs the GoHighLevel hosted form submit URL (not a raw
+   inbound webhook).
+2. **Governing law** — `terms/index.html` assumes Texas because Thrive FP is
+   Austin-based. Confirm or replace.
+3. **Legal review** — the privacy policy and terms were written to match what the
+   site actually does (no cookies, no analytics, no trackers; first name and email
+   only, and only on subscribe). Accurate, but not lawyer-drafted.
+4. **`$2B` vs `$1.4B`** — the Thrive FP card says "more than $2 billion of
+   transactions since 2011"; the bio says "more than $1.4 billion in transaction
+   volume". Both are live on the page. One is wrong.
+5. **Podcast rating** — the block held an invented 4.9 and was REMOVED rather than
+   shipped. Restore only with a real rating and review count; markup is commented
+   in place.
+6. **Newsletter cadence** — the proof list and form note both claim one email a
+   week. Confirm or reword.
+7. **Quote attribution** — confirm the closing line is JP's.
+8. **Topic marquee** — scrolls abstract themes. Guest names would be stronger
+   proof; needs ~10 recognisable names to fill the loop.
 
 **Images**
 17. **Hero portrait resolution — the weakest asset on the page.** `jp-portrait.*`
