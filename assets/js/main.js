@@ -274,6 +274,127 @@
     });
   }
 
+  /* ------------------------------------------------- belief: read more */
+
+  /* The manifesto is 13 paragraphs. On a desktop it reads alongside a sticky
+     heading and costs nothing; on a phone it is 2140px, the single longest
+     thing on the page. Collapse it to the pivot line and let people open it.
+
+     Progressive enhancement on purpose: the markup ships complete and the
+     clamp is applied here, so with JS off, or on a wide screen, the whole
+     piece is simply there. Nothing is hidden from a crawler either - the
+     text is in the DOM, only its height is constrained. */
+  (function beliefReadMore() {
+    var body = $('.belief__body');
+    if (!body) return;
+
+    var mq = window.matchMedia('(max-width: 640px)');
+    var paras = $$('p', body).filter(function (el) { return el.parentNode === body; });
+
+    /* Cut after the dimensions paragraph: lead, setup, the "true wealth
+       isn't simply having more money" turn, then the five dimensions. It
+       ends on a hook rather than mid-thought. */
+    var CUT = 4;
+    if (paras.length <= CUT + 2) return;
+
+    var open = false;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'readmore';
+    btn.setAttribute('aria-expanded', 'false');
+    btn.setAttribute('aria-controls', 'belief-body');
+    body.id = 'belief-body';
+
+    function label() {
+      btn.innerHTML = open
+        ? 'Show less <span class="arw" aria-hidden="true">&uarr;</span>'
+        : 'Read the rest <span class="arw" aria-hidden="true">&darr;</span>';
+    }
+
+    /* Measured rather than a fixed px so the cut still lands on a paragraph
+       break when the type scale or the copy changes.
+
+       Rect deltas, not offsetTop: .is-clamped sets position:relative, which
+       makes the body itself the offsetParent of its own paragraphs, so an
+       offsetTop subtraction compares two different origins and returns a
+       negative height. getBoundingClientRect is origin-independent. */
+    function clampHeight() {
+      var last = paras[CUT - 1];
+      return last.getBoundingClientRect().bottom - body.getBoundingClientRect().top;
+    }
+
+    function collapse() {
+      open = false;
+      body.classList.add('is-clamped');
+      body.style.maxHeight = clampHeight() + 'px';
+      btn.setAttribute('aria-expanded', 'false');
+      label();
+    }
+
+    function expand() {
+      open = true;
+      body.style.maxHeight = body.scrollHeight + 'px';
+      btn.setAttribute('aria-expanded', 'true');
+      label();
+      /* Drop the cap once the transition is done so the section can still
+         reflow if the device rotates or a font loads late. */
+      window.setTimeout(function () {
+        if (open) {
+          body.classList.remove('is-clamped');
+          body.style.maxHeight = '';
+        }
+      }, 450);
+    }
+
+    function teardown() {
+      open = false;
+      body.classList.remove('is-clamped');
+      body.style.maxHeight = '';
+      if (btn.parentNode) btn.parentNode.removeChild(btn);
+    }
+
+    function apply() {
+      if (mq.matches) {
+        if (!btn.parentNode) body.parentNode.insertBefore(btn, body.nextSibling);
+        if (!open) collapse();
+      } else {
+        teardown();
+      }
+    }
+
+    btn.addEventListener('click', function () {
+      if (open) {
+        collapse();
+        body.scrollIntoView({ block: 'start', behavior: 'smooth' });
+      } else {
+        expand();
+        track('Belief Expanded');
+      }
+    });
+
+    apply();
+
+    /* Both, deliberately. The matchMedia change event is the right signal but
+       does not fire in every environment, and if it is missed while collapsed
+       the manifesto stays cut off at 489px on a wide screen. The debounced
+       resize is the belt to its braces. */
+    if (mq.addEventListener) mq.addEventListener('change', apply);
+    else if (mq.addListener) mq.addListener(apply);
+
+    var t;
+    window.addEventListener('resize', function () {
+      window.clearTimeout(t);
+      t = window.setTimeout(apply, 150);
+    });
+
+    /* A late web-font load changes the measured height, so re-clamp once. */
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        if (mq.matches && !open) collapse();
+      });
+    }
+  })();
+
   /* ------------------------------------------------------------- failsafe */
 
   /* If anything above throws in an older browser, make sure no revealable

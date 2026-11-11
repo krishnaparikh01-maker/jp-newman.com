@@ -1667,6 +1667,11 @@ ul { margin: 0; padding: 0; list-style: none; }
    20. RESPONSIVE
    -------------------------------------------------------------------------- */
 
+/* The read-more button is inserted by JS and only ever belongs on a phone.
+   Hiding it by default means a failed teardown shows nothing rather than an
+   unstyled browser button; the mobile block below turns it back on. */
+.readmore { display: none; }
+
 @media (max-width: 1120px) {
   /* Two thumbnails in a half-width column get too small to read; give the
      episode grid the full container instead. */
@@ -1843,6 +1848,48 @@ ul { margin: 0; padding: 0; list-style: none; }
      read as one grey block. Loosen it and the headings breathe. */
   .d1, .d2, .d3 { line-height: 1.02; letter-spacing: -0.02em; }
   .d2 { font-size: clamp(1.75rem, 8.2vw, 2rem); }
+
+  /* The manifesto collapsed to its pivot line. The clamp height is set in
+     JS so it lands on a paragraph break; everything visual is here.
+     .is-clamped is only ever added by JS, so with JS off the full piece
+     renders and no fade or button appears. */
+  .belief__body.is-clamped {
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.4s var(--ease);
+  }
+  .belief__body.is-clamped::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 7rem;
+    background: linear-gradient(to bottom, rgba(11, 15, 14, 0), var(--ink));
+    pointer-events: none;
+  }
+
+  .readmore {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1.4rem;
+    padding: 0.7rem 1.3rem;
+    border: 1px solid var(--ink-3);
+    border-radius: 999px;
+    background: transparent;
+    font-family: inherit;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--brass-bright);
+    cursor: pointer;
+    transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+  .readmore:hover,
+  .readmore:focus-visible { border-color: var(--brass); }
+  .readmore .arw { transition: transform 0.2s var(--ease); }
+  .readmore:hover .arw { transform: translateY(2px); }
+  .readmore[aria-expanded='true']:hover .arw { transform: translateY(-2px); }
 
   /* Figures were capped at 22rem, narrower than the column, so portraits
      sat inset from the text they belong to. Let them fill it. */
