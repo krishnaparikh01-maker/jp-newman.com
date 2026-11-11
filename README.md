@@ -278,6 +278,31 @@ Search the codebase for `TODO:`.
 
 ---
 
+## Asset cache busting
+
+`styles.css` and `main.js` are referenced with a `?v=` version marker:
+
+    assets/css/styles.css?v=2026111101
+
+GitHub Pages serves these files with `cache-control: max-age=600` and no
+fingerprint in the filename, so without the marker a browser that has the
+page cached keeps using its old CSS and JS after a deploy. That is not a
+theoretical problem: it is why a round of mobile work appeared live on the
+server but not on the phone it was written for.
+
+**Bump the version in all four places whenever styles.css or main.js
+changes**, or the change will not reach anyone who has visited before:
+
+| File | Reference |
+| --- | --- |
+| `index.html` | `assets/css/styles.css?v=` |
+| `index.html` | `assets/js/main.js?v=` |
+| `privacy/index.html` | `../assets/css/styles.css?v=` |
+| `terms/index.html` | `../assets/css/styles.css?v=` |
+
+The value is just a date stamp plus a counter (`YYYYMMDDNN`); nothing reads
+it, it only has to differ from last time.
+
 ## Going live
 
 The site is going up at **jpnewman.com**, a domain registered at GoDaddy on
