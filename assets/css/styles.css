@@ -1815,28 +1815,13 @@ ul { margin: 0; padding: 0; list-style: none; }
   .hero__eyebrow { align-items: flex-start; gap: 0.7rem; }
   .hero__eyebrow::before { width: 1.75rem; margin-top: 0.5em; flex: none; }
 
-  /* Four stacked 16:9 episode cards ran to roughly 1400px - nearly two
-     screens of podcast alone, on a page that was already 17 screens long.
-     Swiping sideways is how people browse episodes on a phone anyway, and
-     it costs the height of three cards. The row bleeds to the screen edges
-     so the next card peeks in and the gesture is discoverable. */
-  .eps {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scroll-snap-type: x mandatory;
-    /* Without this the snap aligns to the scroll box, not the padding box,
-       and yanks the first card flush against the screen edge. */
-    scroll-padding-inline: var(--gutter);
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    margin-inline: calc(var(--gutter) * -1);
-    padding-inline: var(--gutter);
-    padding-bottom: 0.25rem;
-  }
-  .eps::-webkit-scrollbar { display: none; }
-  .eps > li { flex: 0 0 76%; scroll-snap-align: start; }
+  /* REVERTED: the episode row was a horizontal snap carousel here, built to
+     save nearly two screens of height. It measured clean in Chromium - the
+     document never exceeded the viewport - but on iOS Safari the negative
+     inline margins on an overflow-x:auto flex row blew the layout out, and
+     the whole page shrank to a narrow column. Reverted rather than patched
+     speculatively, because there is no Safari to test a fix against here.
+     Any retry needs a real iOS device before it ships. */
 
   /* Section headings were running to three lines and, with 64px of band
      padding above them, a section's header alone ate half the screen
