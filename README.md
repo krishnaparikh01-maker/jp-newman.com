@@ -162,11 +162,28 @@ throws. Declarative clicks are wired via `data-event` attributes in the markup.
 
 ## Newsletter form
 
-Posts to the GoHighLevel **inbound webhook** for sub-account
-`KV9ByFOi2JhXySNLQzjH` — the same endpoint fulfillionaire.com uses, so signups
-from both sites land in one place and run the same workflow. Tagged
-`fulfillionaire newsletter`, with an extra `source: jp-newman.com` field so the
-two sites can be told apart.
+Posts to a GoHighLevel **inbound webhook** in sub-account
+`KV9ByFOi2JhXySNLQzjH` — the same account fulfillionaire.com uses, but this
+site has **its own workflow**, `JP Newman Site — Newsletter`, so its signups can
+be reported on separately.
+
+The workflow is three steps, published and live:
+
+| Step | What it does |
+| --- | --- |
+| Inbound Webhook (trigger) | Receives the POST from the form |
+| Create contact | Full name &larr; `name`, Email &larr; `email`, Contact source &larr; `source` |
+| Add Tag | Applies `fulfillionaire newsletter lead` **and** `jp newman website` |
+
+`fulfillionaire newsletter lead` is the tag the CRM already uses for
+fulfillionaire.com signups, so the two sites' subscribers sit in one segment;
+`jp newman website` is this site's own tag, so they can also be pulled apart.
+The tags are applied by the workflow, not by the payload — the `tags` field the
+form sends is for the record only.
+
+**The payload sends `name` as well as `first_name`**, because GHL's Create
+Contact maps a single "Full name" field. Without `name`, contacts arrive
+nameless.
 
 **Why a hidden iframe and not `fetch()`.** The webhook sends no CORS headers, so
 a `fetch()` is blocked by the browser and the signup is silently lost. A form
@@ -178,9 +195,12 @@ is away. fulfillionaire.com does the same thing for the same reason.
 
 Four layers, in descending order of how much they actually do:
 
-1. **Double opt-in** (GHL workflow). The only one that truly keeps the list
-   clean: a bot can submit, but it never clicks the confirmation link, so it
-   never becomes a subscriber.
+1. **Double opt-in** (GHL workflow). The only one that would truly keep the
+   list clean: a bot can submit, but it never clicks the confirmation link, so
+   it never becomes a subscriber. **This is not built yet** — the workflow
+   creates the contact straight away. The CRM has a
+   `pending confirm fulfillionaire newsletter` tag, which suggests
+   fulfillionaire.com has such a flow worth copying.
 2. **Honeypot field** (`#company`) — hidden from people, filled by naive bots.
    Fails silently so a scraper learns nothing.
 3. **Minimum fill time** (`CONFIG.MIN_FILL_MS`, 2.5s) — catches instant submits.
@@ -194,7 +214,8 @@ there is nothing to *verify* the token against — Cloudflare's siteverify call
 needs a server. Requiring the token stops bots that will not solve the challenge
 in a real browser; it does not stop one POSTing straight to the webhook. The
 token is forwarded as `cf-turnstile-response` so server-side verification can be
-added later without touching the form. **Double opt-in remains the real defence.**
+added later without touching the form. **Double opt-in remains the real defence, and it is still the
+biggest missing piece.**
 
 ## ⚠️ Open items — nothing below is verified
 

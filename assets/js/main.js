@@ -8,15 +8,18 @@
   'use strict';
 
   var CONFIG = {
-    /* GoHighLevel inbound webhook, the same endpoint and sub-account
-       (KV9ByFOi2JhXySNLQzjH) that fulfillionaire.com posts to, so signups from
-       here land in the same place and run the same workflow. */
+    /* GoHighLevel inbound webhook for the "JP Newman Site - Newsletter"
+       workflow, in the same sub-account (KV9ByFOi2JhXySNLQzjH) that
+       fulfillionaire.com uses. This site has its own workflow so its signups
+       can be reported on separately; the workflow creates or updates the
+       contact and applies both tags. */
     NEWSLETTER_ENDPOINT: 'https://services.leadconnectorhq.com/hooks/' +
-      'KV9ByFOi2JhXySNLQzjH/webhook-trigger/e5fb3990-024b-44c7-a91c-822037b4ccf3',
+      'KV9ByFOi2JhXySNLQzjH/webhook-trigger/926fcf55-96c8-47d8-a026-e79939a09e71',
 
-    /* Matches the tag fulfillionaire.com sends, so the existing workflow picks
-       these up unchanged. SOURCE is extra, for telling the two sites apart. */
-    NEWSLETTER_TAG: 'fulfillionaire newsletter',
+    /* The workflow applies the tags itself, so this is sent for the record
+       only. It matches the tag fulfillionaire.com's own signups carry.
+       SOURCE lands on the contact's Contact Source field. */
+    NEWSLETTER_TAG: 'fulfillionaire newsletter lead',
     NEWSLETTER_SOURCE: 'jp-newman.com',
 
     MIN_FILL_MS: 2500
@@ -211,7 +214,7 @@
       var done = function () {
         form.reset();
         submit.disabled = false;
-        setStatus('You’re in. Check your inbox to confirm your subscription.', 'ok');
+        setStatus('You’re in. The next issue lands in your inbox.', 'ok');
         track('Newsletter Opt-in');
       };
 
@@ -238,6 +241,10 @@
       post.style.display = 'none';
 
       var fields = {
+        /* GoHighLevel's Create Contact maps a single "name", so send both:
+           "name" fills Full name, "first_name" is kept for anything that
+           reads the raw payload. */
+        name: first.value.trim(),
         first_name: first.value.trim(),
         email: email.value.trim(),
         tags: CONFIG.NEWSLETTER_TAG,
