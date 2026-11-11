@@ -1758,10 +1758,43 @@ ul { margin: 0; padding: 0; list-style: none; }
 
   .strip__inner { flex-direction: column; align-items: flex-start; gap: 1.5rem; }
   .strip__label { padding-right: 0; border-right: 0; }
-  .logowall { justify-content: flex-start; gap: 1.5rem 2rem; width: 100%; }
-  .logowall__slot img { max-height: 2.25rem; max-width: 6.5rem; }
-  .footer__grid { grid-template-columns: 1fr; }
-  .actions .btn { width: 100%; justify-content: center; }
+
+  /* The logo wall was a flex row that wrapped 4-then-1, leaving the last mark
+     stranded on its own line. A 2-up grid wraps evenly whatever the count, and
+     each slot gets equal space so wide and square marks read at similar
+     weight instead of fighting each other. */
+  .logowall {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem 1.25rem;
+    width: 100%;
+    justify-content: stretch;
+  }
+  .logowall__slot img { max-height: 2.1rem; max-width: 100%; }
+  /* An odd number of logos leaves one alone in the left column; let it span
+     the full width so it reads as centred rather than stranded. */
+  .logowall__slot:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
+  /* Footer link columns stacked into 1.3 screens of scrolling on a phone.
+     Two columns with tighter rows halves it; the brand blurb stays full
+     width above them. */
+  .footer__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+  }
+  .footer__brand { grid-column: 1 / -1; }
+  .footer__col li { margin-bottom: 0.45rem; }
+  .footer__col h4 { margin-bottom: 0.8rem; }
+
+  /* Two stacked full-width buttons dominated the first screen. Letting them
+     size to their label puts them side by side when they fit and keeps the
+     eye on the headline. */
+  .actions { gap: 0.7rem; }
+  .actions .btn { width: auto; justify-content: center; }
+
+  /* Stops "FOUNDER OF FULFILLIONAIRE" breaking across two lines. */
+  .hero__eyebrow { align-items: flex-start; gap: 0.7rem; }
+  .hero__eyebrow::before { width: 1.75rem; margin-top: 0.5em; flex: none; }
 }
 
 @media (max-width: 400px) {
